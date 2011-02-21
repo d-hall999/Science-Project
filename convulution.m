@@ -1,8 +1,7 @@
-%  misalignment
-%
-% Date:18/2/11
-%
-% 
+
+% Original code taken from
+%http://stackoverflow.com/questions/3402081/test-the-surrounding-non-zeros-elements
+
 %% Clear workspace
 
 clear all
@@ -17,27 +16,28 @@ image_1='test.tif';
 % Reads image data
 h=imread(image_1);
 h2=h;
-[y,x]=find(h>=0);
 
-% These find the min and max co-ordinates to allow the creation of a
-% rectangular array needed for creation of plot
-max_x=max(x);
-max_x=max_x-1;
-min_x=min(x);
-min_x=min_x+1;
+% Convulation kernel1's correspond to neighbouring pixels 0 is pixel
+% currently selected during computation
+% 1 1 1
+% 1 0 1
+% 1 1 1
 
-% Below ensures that no edges are detected in h2
-max_y=max(y);
-max_y=max_y-1;
-min_y=min(y);
-min_y=min_y+1;
+kernel = [1 1 1;1 0 1;1 1 1];
 
-for x=min_x:max_x;
-    for y=min_y:max_y;
-        moving_array=h2(y-1:y+1,x-1:x+1);% 3x3 kernel
-        average_1=mean(moving_array);% 3 values one for each row
-        h2(y,x)=round(mean(average_1));% takes all averages and rounds them to an integer and places it x y of current loop
-    end
-end
 
-% Program works but is very slow
+%This computes sum of neighbouring pixels
+sumX= conv2(double(h2),kernel,'same');  
+
+% Logical operator next to array makes it calculate the number of neighbouring pixels
+nX = conv2(double(h2>=0),kernel,'same');
+
+% element by element division to get the required average
+misalign_image=sumX./nX;
+
+round(misalign_image);
+new_image=uint8(misalign_image);
+imshow(new_image);
+
+
+
