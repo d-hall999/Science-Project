@@ -35,7 +35,8 @@
 % y=y coordinates of selected array
 % x=x coordinates of selected array
 % double_array_h= image data converted from uint8 to double
-% idx= is a vector displayin index number of points allowing selection of
+% outsidemaskidx= is a vector displaying index number of points allowing
+% selection of individual pixels outside mask.
 % each element bsed on x and y
 % min_x=minimum x value of ROI
 % max_x=maximum x value of ROI
@@ -65,7 +66,7 @@ show_image=imshow(image_1);
 
 %This creates a freehand drawing on image, Parameters Closed and Value True
 %ensure freehand area is closed
-roi= imfreehand('Closed','true');
+roi= impoly;
 
 % Creates mask based on freehand ROI above shown image
 BW=createMask(roi,show_image);
@@ -89,14 +90,14 @@ STATS=regionprops(BW,h,'MinIntensity')
 % simply states logical operater is true
 [y,x,v]=find(BW==0);
 
-%Converts  image array into double precision so NaN is shown as unit8 will display NaN as 0
+%Converts  image array into double precision so NaN is shown, as uint8 will display NaN as 0
 double_array_h=double(h);
 
 %This creates and index based on x y co-ordinates to allow selction of each
 %pixel to apply NaN to. y and x have been inverted because row vectors
 %needed for sub2ind
-idx=sub2ind(size(double_array_h),[y'],[x']);
-double_array_h(idx)=NaN;
+outsidemaskidx=sub2ind(size(double_array_h),[y'],[x']);
+double_array_h(outsidemaskidx)=NaN;
 %==========================================================================
 
 %% 3D Plot of intensity
@@ -133,26 +134,45 @@ figure;surface_plot=surf(xx,yy,h2);
 % Changes 13/02/10
 % Original plot didnt take into account image and graph y axes are inverted
 % Inverts Y axis
+
 set(gca,'YDir','reverse');
+
+axis([min_x max_x min_y max_y])
+
+
 
 % Removes grid connected points so only surface is seen
 set(surface_plot,'edgecolor','none');
 
-% this shows a gbradient based on z value(i.e) intensity
+% this shows a gradient based on z value(i.e) intensity
 colormap(gray);
 
-%shows colour bar based on z
-colorbar;
-new_colorbar=colorbar('Location','WestOutside');
+%shows color bar based on z
+cb=colorbar('location','WestOutside');
+
+%==========================================================================
+% After running program on 13/11/02 was slight problem of color bar overlapping 
+% with plot so when program was run I used codes get(cb,'Position') & get(gca,'Position') ,
+% this let me see position, height and width and I manually set these so no
+% overlap
+
+c_bar_pos=get(cb,'Position');
+c_bar_pos(1)=c_bar_pos(1)-0.1;
+set(cb,'Position',c_bar_pos);
+
+gca_pos=get(gca,'Position');
+gca_pos(1)=gca_pos(1)+0.05;
+set(gca,'Position',gca_pos);
+%==========================================================================
 
 %Annotation
-ylabel(new_colorbar,'intensity');
-ylabel('Y-coordinate of pixel');
-xlabel('X-coordinate of pixel');
+xlabel(cb,'intensity');
+ylabel('Y');
+xlabel('X');
 title('3D intensity plot of ROI');
 %View is from Az=1 so graph is rotated ie xy are same orientation as image plus show axis and
 %Elevation 75 shows image from a good perspective
-view(1,75);
+view(-14,76);
 
 
 
