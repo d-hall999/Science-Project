@@ -106,9 +106,10 @@ cd ..
 
 
 %  Now set the alpha map for the nan region
+
 mask=isnan(ratio1);
 black = [0 0 0];
-overlay = imoverlay(rgb, mask, black);
+overlay = imoverlay(ratio1, mask, black);
 imwrite(overlay, ratio1);
 fig1=figure;imshow(ratio1);
 load('MyColormaps','mycmap')
@@ -124,7 +125,7 @@ fig2=figure;imshow(ratio2);
 load('MyColormaps','mycmap');
 set(fig2,'Colormap',mycmap);
 set(fig2,'Position',[10 10 1120 750]);
-set(fig2,'CLim',[0 1]);
+set(fig2,'CLim',[-1 1]);
 colorbar;
 
 
@@ -136,12 +137,7 @@ set(fig3,'Colormap',mycmap);
 set(fig3,'Position',[10 10 1120 840]);
 set(gca,'CLim',[-1 1]);
 colorbar;
-%  Now set the alpha map for the nan region
-z = ratio3;
-z(~isnan(ratio3)) = 1;
-z(isnan(ratio3)) = 0;
-alpha(z);
-set(gca, 'color', [0 0 0]);
+
 
 %=========================================================================
 % Plots original Images
