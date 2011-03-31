@@ -1,11 +1,11 @@
-function [image_stack_s]=Smooth(image_stack_b)
+function [image_stack_s]=Smooth(image_stack_b,files)
 
-cd 'Smoothing'
-[~,~,Z]=size(image_stack_b);
+
+[~,~,h]=size(image_stack_b);
 
 % User Input-Decide which smoothing filter
 
-for Z=1:Z; % selects image from its z value
+for Z=1:h; % selects image from its z value
 image_slice=image_stack_b(:,:,Z);
 
 
@@ -60,7 +60,7 @@ J=uint16(smoothed_image);
 SP2=subplot(1,2,2);imshow(J,[0 h]);
 set(SP2,'Position',[0.53 0.05 0.45 0.96]);
 User_Error=1;
-Print_Text='Average from Neighbouring cells ';
+Print_Text=['Average from Neighbouring cells'];
 %==========================================================================
 
     case 'G' %user selects gaussian blur
@@ -95,12 +95,16 @@ User_happy=input('Please enter Y if you are happy with image, enter N to start s
 
 switch User_happy
     case 'Y'
+        
+        cd 'Smoothing'
         C=1;
         image_text=['Applied ', Print_Text,num2str(count),' times'];
         fig_to_file=figure;imshow(J, [0 h]);
+        set(fig_to_file,'visible','off');
         TXT=text(20,20,image_text);
         set(TXT,'color',[1 0 0]);
-	print(fig_to_file, '-dtiffn',files{Z});
+        print(fig_to_file, '-dtiffn',files{Z});
+        cd ..
         
     case 'N'
         C=0;
@@ -120,12 +124,7 @@ end
 end
 image_stack_s(:,:,Z)=J;
 
-% clear variables not need
-clear kernel
-clear sumX
-clear nX
-clear smoothed_image
-clear location
-clear J
+end
+
 
 end

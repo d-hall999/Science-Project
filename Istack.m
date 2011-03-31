@@ -31,8 +31,8 @@ end
 % Image_Presentation
  for Z=1:Z; % selects image from its z value
 
-image_{Z}=image_stack_reg(:,:,Z);
-subplot(2,2,Z);imshow(image_{Z},[0 h]);
+
+subplot(2,2,Z);imshow(image_stack_reg(:,:,Z),[0 h]);
 
  end
  disp('Please check image stack is correctly aligned in ImageJ!!!!!');

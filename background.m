@@ -1,4 +1,4 @@
-function [image_stack_b]=background(image_stack_reg,files)
+function [image_stack_b]=background(image_stack_reg,name_array)
 
 cd 'Background';
 
@@ -75,10 +75,8 @@ set(figure_1,'Position',[50 10 1120 840]);
 set(SP1,'Position',[0.05 0.05 0.45 0.96]);
 SP2=subplot(1,2,2);imshow(J,[0 h]);
 set(SP2,'Position',[0.53 0.05 0.45 0.96]);
-
 disp('Due to error you will have to manually maximise figure');
 User_Error=1;
-
 Print_Text=2;
 %==========================================================================
 %User selects BP filter
@@ -165,7 +163,7 @@ switch User_happy
         C=0;
 end
 
-
+clc
 end
 close all
 
@@ -188,25 +186,20 @@ elseif Print_Text==4
     
 end
 
-
 fig_to_file=figure;imshow(J, [0 h]);
+set(fig_to_file,'visible','off') 
 TXT=text(20,20,image_text);
 set(TXT,'color',[1 0 0]);
 
-print(fig_to_file, '-dtiffn',files{Z});
+print(fig_to_file, '-dtiffn',name_array{Z});
 
 image_stack_b(:,:,Z)=J;
 
 
 end
 
-clear size1
-clear h
-clear location
-clear figure_handle
-clear SP1
-clear large_struct
-clear Print_Text
 
 clc
+
+cd ..
 end
