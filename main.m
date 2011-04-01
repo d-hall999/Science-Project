@@ -43,6 +43,8 @@ MIJ.start('/home/darryl/ImageJ');
 %MIJ.start('/Applications/Fiji.app/');
 %MIJ.start('/Applications/ImageJ/plugins/');
 
+disp('Close last instance of ImageJ if this program is being run again!!');
+
 %% Folder setup
 
 %Set path
@@ -70,14 +72,17 @@ for f=1:files_numb;
    disp(strg);
    
    image_array{f}=image;
+   [~, name_linear{f}, ~] = fileparts(files{f});
    
         
 end
 cd ..
+clc
+
 comparisons=input('How many images are you comparing at each condition/timepoint/repeat: ');
 sets=files_numb/comparisons;
 image_array=reshape(image_array,sets,comparisons);
-name_array=reshape(files,sets,comparisons);
+name_array=reshape(name_linear,sets,comparisons);
 
 
 %% Preallocation of large arrays with row and column headings
@@ -102,22 +107,27 @@ elseif comparisons==3
     ratio_array_with_headings{1,4}='Stain_2/Stain_3';
 end
 
-% Array for naming ratio prints
+%% Array for naming ratio prints
 
 file_names_ratio=ratio_array_with_headings;
 
 if comparisons==2
     for P=1:sets;
     G=1;
-    file_names_ratio{P+1,G+1}=[name_array{P,G},'/',name_array{P,G+1}];
+    file_names_ratio_roi{P+1,G+1}=[name_array{P,G},'/',name_array{P,G+1},'_roi'];
+    file_names_ratio_whole{P+1,G+1}=[name_array{P,G},'/',name_array{P,G+1},'_whole_image'];
     end
 % file names if 3 stainings to compare
 elseif comparisons==3
     for P=1:sets;
      G=1;
-            file_names_ratio{P+1,G+1}=[name_array{P,G},'/',name_array{P,G+1}];
-            file_names_ratio{P+1,G+2}=[name_array{P,G},'/',name_array{P,G+2}];
-            file_names_ratio{P+1,G+3}=[name_array{P,G+1},'/',name_array{P,G+2}];
+            file_names_ratio_roi{P+1,G+1}=[name_array{P,G},'_',name_array{P,G+1},'_roi'];
+            file_names_ratio_roi{P+1,G+2}=[name_array{P,G},'_',name_array{P,G+2},'_roi'];
+            file_names_ratio_roi{P+1,G+3}=[name_array{P,G+1},'_',name_array{P,G+2},'_roi'];
+            
+            file_names_ratio_whole{P+1,G+1}=[name_array{P,G},'_',name_array{P,G+1},'_whole_image'];
+            file_names_ratio_whole{P+1,G+2}=[name_array{P,G},'_',name_array{P,G+2},'_whole_image'];
+            file_names_ratio_whole{P+1,G+3}=[name_array{P,G+1},'_',name_array{P,G+2},'_whole_image'];
      
     end
         
@@ -227,31 +237,30 @@ log_ratio_img_whole_array{stack+1,1}=name_array{stack,1};
 log_ratio_img_whole_array(stack+1,2:comparisons+1)=log_ratio_img_whole_row;
 
 
-file_names_ratio{stack+1,1}=name_array{stack,1};
-
+file_names_ratio_roi{stack+1,1}=name_array{stack,1};
+file_names_ratio_whole{stack+1,1}=name_array{stack,1};
 
 
 
 % Clearing variables from row loop as change in size of ROI or image will
 %cause dimensions mismatch
 
-clear image; clear ratio1; clear ratio2; clear normalized_roi_row; 
-
-clear image_stack;clear image_stack_reg;clear image_stack_b;clear image_stack_s
-clear image_stack_roi;clear image_stack_roi_n;clear image_stack_w_n;
-clear  background_row;clear  smooth_row;clear  roi_row;clear  c
-clear T;clear P;clear G;clear log_ratio_1;clear log_ratio_2;
-clear log_ratio_img_whole_row;clear log_ratio_img_roi_row
-clear ratio_img_roi_row;clear ratio_img_roi_lim_row;
-clear ratio_img_whole_lim_row;clear ratio_img_whole_row
+clear image ratio1 ratio2 normalized_roi_row  image_stack image_stack_reg;
+clear image_stack_b image_stack_s image_stack_roi image_stack_roi_n;
+clear image_stack_w_n background_row smooth_row roi_row c T P G;
+clear log_ratio_1 log_ratio_2 log_ratio_img_whole_row log_ratio_img_roi_row
+clear ratio_img_roi_row ratio_img_roi_lim_row ratio_img_whole_lim_row;
+clear ratio_img_whole_row
 
 
 end
 
-clear ImageJ_str;clear T;clear array_with_headings;clear comparisons
-clear f;clear files;clear files_numb;clear sets;clear stack;clear strg
-clear image_array;clear ratio_array_with_headings;clear sa;clear sets
-clear stack
+% Function to Plot data with scales 10-0.1,5-0.2,2-0.5
+[mycmap]=overlay_s(log_ratio_img_roi_array,file_names_ratio_roi,file_names_ratio_whole,log_ratio_img_whole_array);
+
+
+clear ImageJ_str T array_with_headings comparisons f files files_numb;
+clear sets stack strg image_array ratio_array_with_headings sa sets stack;
 
  
 

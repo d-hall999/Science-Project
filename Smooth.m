@@ -14,10 +14,11 @@ C=0;
 count=1;
 while C==0 || User_Error==0 %this loop allows user to change filter if unhappy about analysed image 
 % If input incorrect starts loop regardless wether user inputs 1 or 0
-
+clc
 count_text=['Applied smoothing filter to this image ',num2str(count),' before'];
 disp(count_text);
 %Asks user for input
+disp('If you are doing reapply please apply same method as before');
 Smoothing_Filter=input('Please enter "A" for smoothing based on average of neighbouring pixels or enter "G" for gaussian blur:','s');
 
 
@@ -65,7 +66,7 @@ Print_Text=['Average from Neighbouring cells'];
 
     case 'G' %user selects gaussian blur
 g_size=input('Please enter size of gaussian square: ');
-myfilter = fspecial('gaussian',[g_size,g_size], 0.5);% selects gaussian and size,
+myfilter = fspecial('gaussian',[3,3], g_size);% selects gaussian and size,
 J = imfilter(image_slice, myfilter, 'replicate');% filters image
 
 % Selects Max intensity value of uint16 image
@@ -82,7 +83,7 @@ set(SP1,'Position',[0.05 0.05 0.45 0.96]);
 SP2=subplot(1,2,2);imshow(J,[0 h]);
 set(SP2,'Position',[0.53 0.05 0.45 0.96]);
 User_Error=1;
-Print_Text=['Gaussian blur, size: ',num2str(g_size),' '];
+Print_Text=['Gaussian blur, sigma(radius): ',num2str(g_size),' '];
 %==========================================================================
 
     otherwise % minimize errors from user
@@ -90,9 +91,12 @@ Print_Text=['Gaussian blur, size: ',num2str(g_size),' '];
         User_Error=0;
         
 end
-disp('Please ensure you if you redo that you use same method and same size if using gaussian blur');
-User_happy=input('Please enter Y if you are happy with image, enter N to start smoothing from original image, \n enter REDO to apply Smoothing again: ','s');
 
+User_happy=input('Please enter Y if you are happy with image, enter N to start smoothing from original image, \n enter REDO to apply Smoothing again: ','s');
+if User_Error==0
+    User_happy=N;
+else
+end
 switch User_happy
     case 'Y'
         
@@ -119,7 +123,7 @@ switch User_happy
         C=0;
 end
 
-
+clc
 
 end
 image_stack_s(:,:,Z)=J;

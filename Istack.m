@@ -14,15 +14,21 @@ switch stack_q;
 MIJ.createImage(image_stack1); % exports stack to Image J 
 MIJ.run('StackReg ', 'transformation=[Translation]'); % Runs StackReg
 image_stack1=MIJ.getCurrentImage(); %imports aligned stack to image J
-image_stack_reg=uint16(image_stack1); %converts i age stack back to uint16
-
+image_stack_reg=uint16(image_stack1); %converts image stack back to uint16
+% Now asks user if they wish to manually align
     case 'N'
         image_stack_reg=image_stack1;
+        
+        
         
     otherwise
         C=0;
 end
 %=========================================================================        
+
+
+
+
 % Plots stacked images Images
 
 %finds max for subplots
