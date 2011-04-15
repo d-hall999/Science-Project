@@ -5,14 +5,22 @@ for Z=1:Z; % selects image from its z value
 
 % ROI
 image_slice=double(image_stack_roi(:,:,Z));
-[MX,~] = max(image_slice(:));
-[MN,~] = min(image_slice(:));
-image_slice=(image_slice-MN)/(MX-MN);
+[MXROI,~] = max(image_slice(:));
+[MNROI,~] = min(image_slice(:));
+image_slice=(image_slice-MNROI)/(MXROI-MNROI);
 image_stack_roi_n(:,:,Z)=image_slice;
 
 % Whole Image
 
 image_slice_whole=double(image_stack_s(:,:,Z));
+
+% usinng MAX value from ROI, this causes bright spots from debris during
+% imaging
+[Y,X]=find(image_slice>MXROI);% find where denominator staining is but no numerator
+zeroidx=sub2ind(size(image_slice),Y',X');
+image_slice_whole(zeroidx)=MXROI;
+
+
 [MX,~] = max(image_slice_whole(:));
 [MN,~] = min(image_slice_whole(:));
 image_slice_whole=(image_slice_whole-MN)/(MX-MN);
