@@ -1,6 +1,6 @@
-function displayIm3d(image_stack_reg) 
+function displayIm3d(image_stack_view) 
 
-im=image_stack_reg;
+im=image_stack_view;
 [~,~,max] = size(im);
 maxSlice=max;
 minSlice = 1;  

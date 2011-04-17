@@ -25,14 +25,14 @@ pause(3)
 delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
 
 msgbox('Please ensure that if you are using a BPF image to now apply  OUT, RB or N','Icon','warn');
-pause(3)
+pause(5)
 delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
 pause(0.5)
 
 
 prompt = {'Please enter method of background removal."RB"=rolling ball, "BPF" for bandpass filter, "OUT" to select an ROI outside of cell to remove background, "N"=no background removal:'};
 dlg_title = 'Input for background removal';
-num_lines = 1;
+num_lines = 2;
 def = {'N'};
 background = inputdlg(prompt,dlg_title,num_lines,def);
 % If cancel is hit background is 0x0 array this makes sure it is readable by switch
@@ -56,7 +56,7 @@ count=1;
 
 prompt = {'Please enter radius of rolling ball: '};
 dlg_title = 'Input for rolling ball';
-num_lines = 1;
+num_lines = 2;
 def = {'10'};
 size_r = inputdlg(prompt,dlg_title,num_lines,def);
 % If cancel is hit size_r is 0x0 array this makes sure it is readable by switch
@@ -85,9 +85,9 @@ Print_Text=1;
 BPF_Used=0;
 
 
-prompt = {'Do you wish to apply 5% threshold to remove low level background not removed by RB? Type Y to apply, N to continue, If previously applied BPF to this image please type N'} ;
+prompt = {'Do you wish to apply threshold to remove low level background and cytoplasm not removed by RB? Type Y to apply, N to continue, If previously applied BPF to this image please type N'} ;
 dlg_title = 'Input for user threshold';
-num_lines = 1;
+num_lines = 2;
 def = {'N'};
 thresh = inputdlg(prompt,dlg_title,num_lines,def);
 [X,~]=size(thresh);
@@ -98,18 +98,37 @@ end
 
 switch thresh{1,1}
     case 'Y'
-    K=J
-    percent_threshold=(max(J(:))/100)*5;
+    prompt = {'Please enter threshold percentage value i.e 5=5%, 5% will remove lowest 5% of image usually non uniform background, 20% will higlight defined structures:'} ;
+    dlg_title = 'Input for threshold';
+    num_lines = 2;
+    def = {'5'};
+    threshold = inputdlg(prompt,dlg_title,num_lines,def);
+    [X,~]=size(threshold);
+    if X==0
+    threshold{1,1}='0';
+    else
+    end
+    
+    threshold=str2num(threshold{1,1});
+    
+    K=J;
+    
+    percent_threshold=(max(J(:))/100)*threshold;
     [Y,X]=find(J<percent_threshold);
     thresh_idx=sub2ind(size(J),Y',X');
     J(thresh_idx)=0;
+    
+    string=[num2str(threshold),'%= intensity value ',num2str(percent_threshold)];
+    msgbox(string)
+    pause(3);
     
     figure_1=figure;SP1=subplot(1,2,1);imshow(K,[0 h]);title('Original Image')
     % Set figure size, Positon
     set(figure_1,'Position',[50 50 800 600]);
     set(SP1,'Position',[0.05 0.05 0.45 0.96]);
+    
     SP2=subplot(1,2,2);imshow(J,[0 h]);title('New Image')
-        set(SP2,'Position',[0.53 0.05 0.45 0.96]);
+    set(SP2,'Position',[0.53 0.05 0.45 0.96]);
     uiwait()
     case'N'
         
@@ -171,7 +190,7 @@ else
 % User inputs variables just like they would in ImageJ   
 prompt = {'Filter large structures down to:','Filter small structures down to:'};
 dlg_title = 'Input for BPF function';
-num_lines = 1;
+num_lines = 2;
 def = {'40','2'};
 BPF_Size = inputdlg(prompt,dlg_title,num_lines,def);
 [X,~]=size(BPF_Size);
@@ -208,7 +227,7 @@ clc
  
 prompt = {'Are you happy with BPF_Image? . Type N to start different Background removal on original image. Type BPF to apply another background removal to BPF image. Type L to leave BPF Image and stack it for image analysis:'} ;
 dlg_title = 'Input for user BPF processing';
-num_lines = 1;
+num_lines = 2;
 def = {'N'};
 BPF_2 = inputdlg(prompt,dlg_title,num_lines,def);
 [X,~]=size(BPF_2);
@@ -247,6 +266,7 @@ switch BPF_2{1,1}
 
 end
 end
+   
 %==========================================================================
 % User stated no background to be applied
  case 'N'
@@ -283,7 +303,7 @@ elseif BPF_Used==0;
  
  prompt = {'Please enter Y if you are happy with image, enter N to restart background removal on original image: '} ;
 dlg_title = 'Input for user happy with background';
-num_lines = 1;
+num_lines = 2;
 def = {'N'};
 User_happy = inputdlg(prompt,dlg_title,num_lines,def);
 [X,~]=size(User_happy);
@@ -331,6 +351,10 @@ elseif Print_Text==3;
     image_text=['BPF image,L Structures:',num2str(large_struct),' S structures: ',num2str(small_struct)];
 elseif Print_Text==4
     image_text='No background';
+elseif Print_Text==5 && BPF_Print==1
+    image_text=['BPF image,L Structures:',num2str(large_struct),' S structures: ',num2str(small_struct), ', followed by RB radius= ',num2str(size1),'followed by threshold',string];
+elseif Print_Text==5
+    image_text=['RB radius= ',num2str(size1),'followed by threshold', string];
 else  
 end
 

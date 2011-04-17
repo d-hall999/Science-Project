@@ -12,34 +12,34 @@ clc
 %% Get a timestamp before starting the processing
 
 %Displays warning
-ImageJ_str=('Ensure ImageJ remains open !!!!!!!! hit any key to continue.');
-disp(ImageJ_str);
-pause
+ImageJ_str=('Ensure ImageJ remains open !!!!!!!!');
+msgbox(ImageJ_str);
+pause(3)
 
 %% Search Paths
 
 % Adds default Java search paths, edit for your OS, Windows instrunctions
 % provided on MIJ homepage
 
+%Mac
+
+% javaaddpath '/Applications/MATLAB_R2010a.app/java/mij.jar';% this oneshould be in MATLAB/Java
+% 
+% % Selects between ImageJ or Fiji on Mac
+% javaaddpath '/Applications/Fiji.app/jars/ij.jar'; % this one should be in ImageJ file
+% javaaddpath '/Applications/Fiji.app'
+% MIJ.start('/Applications/Fiji.app/');
+
+%javaaddpath '/Applications/ImageJ/ImageJ64.app/Contents/Resources/Java/ij.jar';
+%MIJ.start('/Applications/ImageJ/');
+
 %Linux
 javaaddpath '/home/darryl/java/mij.jar';% this one should be in MATLAB/Java
-javaaddpath '/home/darryl/ImageJ/ij.jar';% this one should be in ImageJ file
-%Mac
-%javaaddpath '/Applications/MATLAB_R2010a.app/java/mij.jar';% this one should be in MATLAB/Java
+javaaddpath '/home/darryl/ImageJ/ij.jar';% this one should be in ImageJ
+javaaddpath '/home/darryl/ImageJ'
 
-% Selects between ImageJ or Fiji on Mac
-%javaaddpath '/Applications/Fiji.app/jars/ij.jar';% this one should be in ImageJ file
-%javaaddpath '/Applications/ImageJ/ImageJ64.app/Contents/Resources/Java/ij.jar';% this one should be in ImageJ file
+MIJ.start('/home/darryl/ImageJ'); % this should link to folder storing imageJ and plugins
 
-% MIJ.start('dir to ImageJ and Plugins')
-
-% Linux change directory for own computer
-MIJ.start('/home/darryl/ImageJ');
-
- 
-% Selects between ImageJ or Fiji on Mac
-%MIJ.start('/Applications/Fiji.app/');
-%MIJ.start('/Applications/ImageJ/plugins/');
 
 msgbox('Close last instance of ImageJ if this program is being run again!!','Icon','warn');
 pause(3)
@@ -54,7 +54,8 @@ pause(3)
 delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
 pause(0.5)
 
-pathname = uigetdir('','directory for images'); %gets image directory
+pathname = uigetdir('directory for images'); %gets image directory
+addpath(pathname);
 files = dir(pathname);% Gets file names
 files= {files(3:end).name};
 files_numb = size(files,2);
@@ -85,12 +86,11 @@ for f=1:files_numb;
    
         
 end
-
 clc
 
 prompt = {'How many images are you comparing at each condition/timepoint/repeat: ',};
 dlg_title = 'Input for comparisons';
-num_lines = 1;
+num_lines = 2;
 def = {'2'};
 compare = inputdlg(prompt,dlg_title,num_lines,def);
 comparisons=str2double(compare{1,1});
@@ -141,6 +141,8 @@ end
 % calls function for automatic StackReg
 [image_stack_reg]=Istack(image_stack);
 %calls function to begin background removal
+C=0;
+while C==0;
 cd 'Background'
 [image_stack_b]=background(image_stack_reg,name_array,stack);
 cd ..
@@ -148,6 +150,43 @@ cd ..
 cd 'Smoothing'
 [image_stack_s]=Smooth(image_stack_b,name_array,stack);
 cd ..
+
+% view smoothing
+msgbox('viewing smoothed images before ratio calculation');
+pause(4)
+image_stack_view=image_stack_s;
+displayIm3d(image_stack_view);
+uiwait()
+
+msgbox('If you type N or an invalid response you will be returned to background removal','Icon','warn')
+pause(5)
+delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
+prompt = {'Please check images before progressing Ratios,Type Y to proceed, Type N to return to background removal  ',};
+dlg_title = 'Input for happiness';
+num_lines = 2;
+def = {'Y'};
+user_happy = inputdlg(prompt,dlg_title,num_lines,def);
+[X,~]=size(User_happy);
+if X==0
+    User_happy{1,1}='K';
+else
+end
+
+switch user_happy{1,1};
+    case 'Y'
+        C=1;
+    case 'N'
+        C=0;
+       
+    otherwise
+        h = errordlg('Unknown input please select Y or N, Starting registration again');
+        pause(3)
+        delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
+        C=0;
+        
+end
+end
+
 %User selcts square ROI
 [image_stack_roi]=select_area(image_stack_s);
 close all
@@ -194,7 +233,7 @@ nCr=nCr+1;
 %Background array
 background_array{stack+1,1}=name_array{stack,1};
 background_array(stack+1,2:comparisons+1)=background_row;
-pause()
+
 %Smooth_array
 smooth_array{stack+1,1}=name_array{stack,1};
 smooth_array(stack+1,2:comparisons+1)=smooth_row;
@@ -242,20 +281,24 @@ clear image_stack_b image_stack_s image_stack_roi image_stack_roi_n;
 clear image_stack_w_n background_row smooth_row roi_row c T P G;
 clear log_ratio_1 log_ratio_2 log_ratio_img_whole_row log_ratio_img_roi_row
 clear ratio_img_roi_row ratio_img_roi_lim_row ratio_img_whole_lim_row;
-clear ratio_img_whole_row nCr 
-
+clear ratio_img_whole_row nCr  normalized_whole_row
+clear I4 C im image_slice user_happy image_stack_man image_stack_view
 
 end
 
 cd 'Analysed'
-% Function to Plot data with scales 10-0.1,5-0.2,2-0.5
-[mycmap]=overlay_s(log_ratio_img_roi_array,file_names_ratio_roi,file_names_ratio_whole,log_ratio_img_whole_array);
-cd ..
+
 
 clear ImageJ_str T array_with_headings comparisons f files files_numb;
 clear sets stack strg image_array ratio_array_with_headings sa sets stack;
-clear h names_linear num_lines prompt
+clear h names_linear num_lines prompt name_linear compare def dlg_title
+load('MyColormaps','mycmap');
+% saves variables
+save('final_arrays.mat');
 
+
+[mask]=lim_gui(log_ratio_img_roi_array,file_names_ratio_roi,file_names_ratio_whole,log_ratio_img_whole_array,mycmap);
+cd ..
 
  
 

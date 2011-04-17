@@ -1,7 +1,7 @@
 function [image_stack_roi]=select_area(image_stack_s)
 
-disp('Select cluster of focal adhesions to focus on, Press any key to continue');
-
+msgbox('Select area of image for further analysis avoiding bright spots caused by anomilies such as debris');
+pause(3)
 [h,~] = max(image_stack_s(:));
 show_image=figure;imshow(image_stack_s(:,:,1),[0 h]);
 %% Creating ROI and mask

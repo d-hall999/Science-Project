@@ -6,7 +6,7 @@ image_stack1=image_stack;
 
 prompt = {'Do you wish to auto align images. Y for Yes, N for No:'} ;% Text for prompt
 dlg_title = 'Input for auto align';%Title of dialog box
-num_lines = 1;% How many lines in input box
+num_lines = 2;% How many lines in input box
 def = {'Y'};%Default
 stack_q = inputdlg(prompt,dlg_title,num_lines,def);
 % If cancel is hit stack_q is 0x0 array this makes sure it is readable by
@@ -22,7 +22,7 @@ switch stack_q{1,1};
     case 'Y'
     % Function runs StackReg macro so user doesn't have to use ImageJ interface
     MIJ.createImage(image_stack1); % exports stack to Image J 
-    MIJ.run('StackReg ', 'transformation=[Translation]'); % Runs StackReg
+    MIJ.run('StackReg','transformation=[Translation]'); % Runs StackReg
     image_stack1=MIJ.getCurrentImage(); %imports aligned stack to image J
     MIJ.run('Close');
     image_stack_reg=uint16(image_stack1); %converts image stack back to uint16
@@ -47,13 +47,14 @@ if C~=0
 msgbox('Please check image stack is correctly aligned in stack_viewer!!!!!');
 pause(3)
 delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
- 
-displayIm3d(image_stack_reg);% Show stack as slices controlled by slider
+
+image_stack_view=image_stack_reg;
+displayIm3d(image_stack_view);% Show stack as slices controlled by slider
 uiwait()
  
 prompt = {'Are you happy with stack. Y for Yes. N for No: '} ;
 dlg_title = 'Input for user happy stack';
-num_lines = 1;
+num_lines = 2;
 def = {'Y'};
 stack_happy{1,1}=[];
 stack_happy = inputdlg(prompt,dlg_title,num_lines,def);

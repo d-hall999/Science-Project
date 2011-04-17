@@ -30,7 +30,7 @@ end
 pause(0.5)
  prompt = {'Please enter "A" for smoothing based on average of neighbouring pixels or enter "G" for gaussian blur:'} ;
 dlg_title = 'Input for smoothing method';
-num_lines = 1;
+num_lines = 2;
 def = {'A'};
 Smoothing_Filter = inputdlg(prompt,dlg_title,num_lines,def);
 [X,~]=size(Smoothing_Filter);
@@ -86,7 +86,7 @@ Print_Text=['Average from Neighbouring cells'];
 
 prompt = {'Please enter (sigma)radius of gaussian filter: '};
 dlg_title = 'Input for gaussianfilter';
-num_lines = 1;
+num_lines = 2;
 def = {'0.5'};
 g_size= inputdlg(prompt,dlg_title,num_lines,def);
 % If cancel is hit size_r is 0x0 array this makes sure it is readable by switch
@@ -118,7 +118,7 @@ Print_Text=['Gaussian blur, sigma(radius): ',num2str(g_size{1,1}),' '];
 %==========================================================================
 
     otherwise % minimize errors from user
-        msgbpx('Unknown input!!! please enter a or g: ','Icon','warn');
+        msgbox('Unknown input!!! please enter a or g: ','Icon','warn');
         pause(3)
         delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
         User_Error=0;
@@ -127,7 +127,7 @@ end
 
  prompt = {'Please enter Y if you are happy with image, enter N to restart smoothing on original image, enter REDO to apply Smoothing again to same image: '} ;
 dlg_title = 'Input for user happy with smoothing';
-num_lines = 1;
+num_lines = 2;
 def = {'N'};
 User_happy = inputdlg(prompt,dlg_title,num_lines,def);
 [X,~]=size(User_happy);
@@ -158,7 +158,7 @@ switch User_happy{1,1}
         pause(0.1)
         C=0;
         image_slice=image_stack_b(:,:,Z);
-        count=1;
+        count=0;
     case 'REDO'
         C=0;
         image_slice=J;
@@ -169,6 +169,7 @@ switch User_happy{1,1}
         delete(findobj(allchild(0), '-regexp', 'Tag', '^Msgbox_'));
         pause(0.1)
         C=0;
+        count=0;
 end
 
 clc
